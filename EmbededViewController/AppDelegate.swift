@@ -11,8 +11,48 @@ import UIKit
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    static var shared: AppDelegate {
+        return UIApplication.shared.delegate as! AppDelegate
+    }
+    
+    var storyBoard: UIStoryboard = UIStoryboard.init(name: "Main", bundle: nil)
+    
     var window: UIWindow?
+    
+    lazy var containerViewController: RootContainerViewController? = {
+        return self.window?.rootViewController as? RootContainerViewController
+    }()
 
+    func changeA() {
+        let actr = self.storyBoard.instantiateViewController(withIdentifier: "A")
+        self.displayContentController(content: actr)
+    }
+    
+    func changeB() {
+        let bctr = self.storyBoard.instantiateViewController(withIdentifier: "B")
+        self.displayContentController(content: bctr)
+    }
+    
+    func displayContentController(content: UIViewController) {
+        let containerVC = self.containerViewController!
+        let oldVC = containerVC.childViewControllers.first!
+        if let presented = oldVC.presentedViewController {
+            presented.dismiss(animated: false, completion: nil)
+        }
+        oldVC.willMove(toParentViewController: nil)
+        containerVC.addChildViewController(content)
+        content.view.frame = containerVC.contaninerView.frame
+        
+        content.beginAppearanceTransition(true, animated: false)
+        oldVC.beginAppearanceTransition(false, animated: false)
+        oldVC.view.removeFromSuperview()
+        containerVC.contaninerView.addSubview(content.view)
+        content.endAppearanceTransition()
+        oldVC.endAppearanceTransition()
+        
+        oldVC.removeFromParentViewController()
+        content.didMove(toParentViewController: containerVC)
+    }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
