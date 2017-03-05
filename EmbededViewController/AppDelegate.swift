@@ -33,12 +33,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.displayContentController(content: bctr)
     }
     
+    func closeAllPresentedViewController(viewController: UIViewController?) {
+        var presented: UIViewController? = nil
+        if let temp = viewController?.presentedViewController {
+            presented = temp
+            self.closeAllPresentedViewController(viewController: presented)
+        } else {
+            return
+        }
+        
+        presented?.dismiss(animated: false, completion: nil)
+    }
+    
     func displayContentController(content: UIViewController) {
         let containerVC = self.containerViewController!
         let oldVC = containerVC.childViewControllers.first!
-        if let presented = oldVC.presentedViewController {
-            presented.dismiss(animated: false, completion: nil)
-        }
+//        if let presented = self.window?.rootViewController?.presentedViewController {
+//            presented.dismiss(animated: false, completion: nil)
+//        }
+        self.closeAllPresentedViewController(viewController: oldVC)
         oldVC.willMove(toParentViewController: nil)
         containerVC.addChildViewController(content)
         content.view.frame = containerVC.contaninerView.frame
@@ -52,6 +65,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         oldVC.removeFromParentViewController()
         content.didMove(toParentViewController: containerVC)
+        
+//        self.window?.rootViewController = content
     }
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
